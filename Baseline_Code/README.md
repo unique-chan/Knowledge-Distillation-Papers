@@ -10,6 +10,7 @@
 ~~~ME
 torch
 torchvision
+torchmetrics
 ~~~
 
 
