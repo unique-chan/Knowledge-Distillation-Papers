@@ -12,7 +12,7 @@ from dataset import load_dataset
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Deep Mutual Learning (github.com/unique-chan)')
+    parser = argparse.ArgumentParser(description='Baseline Code (github.com/unique-chan)')
     parser.add_argument('-lr', default=0.1, type=float, help='learning rate')
     parser.add_argument('-resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('-model', default='', type=str, help='model name')
