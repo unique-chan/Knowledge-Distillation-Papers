@@ -1,5 +1,5 @@
-# Baseline Code
-### Very Simple Image Classification Code (PyTorch)
+# Deep Mutual Learning
+### Unofficial implementation of "Deep Mutual Learning (CVPR 2017)" (PyTorch)
 [Yechan Kim](https://github.com/unique-chan)
 
 ## This repository contains:

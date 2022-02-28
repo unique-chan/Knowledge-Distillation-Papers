@@ -31,7 +31,6 @@ def parse_args():
 
 
 def set_logging_defaults():
-    global log_dir, args
     if os.path.isdir(log_dir):
         raise Exception(f'❌  {log_dir} already exists.')
     os.makedirs(log_dir)
@@ -45,12 +44,10 @@ def set_logging_defaults():
 
 
 def get_optimizer():
-    global net, args
     return optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.decay)
 
 
 def adjust_lr():
-    global optimizer, epoch, args
     lr = args.lr
     if epoch >= 0.5 * args.epoch:
         lr /= 10
@@ -65,7 +62,6 @@ def get_criterion():
 
 
 def train():
-    global net, loader_train, use_cuda, optimizer, epoch, tb_writer
     net.train()
     acc_metric = torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
@@ -93,7 +89,7 @@ def train():
 
 
 def val():
-    global best_acc_val, net, loader_val, use_cuda, epoch, tb_writer
+    global best_acc_val
     net.eval()
     acc_metric = torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
@@ -122,7 +118,6 @@ def val():
 
 
 def checkpoint(total_acc, epoch):
-    global log_dir
     print(end='\r' + '⭕')
     state = {
         'net': net.state_dict(),

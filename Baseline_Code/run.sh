@@ -1,0 +1,1 @@
+python train.py -dataroot='./dataroot' -saveroot='./saveroot' -dataset='cifar100' -epoch=3 -ngpu=1 -model='CIFAR_ResNet18'
