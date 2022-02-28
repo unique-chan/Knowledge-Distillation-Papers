@@ -66,11 +66,11 @@ def train():
     acc_metric = torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
     criterion = get_criterion()
-    for batch_idx, (inputs, targets) in enumerate(loader_train):
+    for batch_idx, (x, y) in enumerate(loader_train):
         if use_cuda:
-            inputs, targets = inputs.cuda(), targets.cuda()
-        outputs = net(inputs)
-        loss = torch.mean(criterion(outputs, targets))
+            x, y = x.cuda(), y.cuda()
+        y_hat = net(x)
+        loss = torch.mean(criterion(y_hat, y))
         # update
         optimizer.zero_grad()
         loss.backward()
@@ -78,7 +78,7 @@ def train():
         # logging on console
         print('\r' + f'⏩ epoch: {epoch} [{batch_idx+1}/{len(loader_train)}] [train], '
                      f'best_acc_val: {best_acc_val * 100.: .3f}%, '
-                     f'batch-acc: {acc_metric(outputs, targets) * 100.: .3f}%, '
+                     f'batch-acc: {acc_metric(y_hat, y) * 100.: .3f}%, '
                      f'batch-loss: {loss_metric(loss):.4f}', end='')
     total_loss = loss_metric.compute()
     total_acc = acc_metric.compute()
@@ -95,15 +95,15 @@ def val():
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
     criterion = get_criterion()
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(loader_train):
+        for batch_idx, (x, y) in enumerate(loader_train):
             if use_cuda:
-                inputs, targets = inputs.cuda(), targets.cuda()
-            outputs = net(inputs)
-            loss = torch.mean(criterion(outputs, targets))
+                x, y = x.cuda(), y.cuda()
+            y_hat = net(x)
+            loss = torch.mean(criterion(y_hat, y))
             # logging on console
             print('\r' + f'⏩ epoch: {epoch} [{batch_idx+1}/{len(loader_train)}] [valid], '
                          f'best_acc_val: {best_acc_val * 100.: .3f}%, '
-                         f'batch-acc: {acc_metric(outputs, targets) * 100.: .3f}%, '
+                         f'batch-acc: {acc_metric(y_hat, y) * 100.: .3f}%, '
                          f'batch-loss: {loss_metric(loss):.4f}', end='')
         total_loss = loss_metric.compute()
         total_acc = acc_metric.compute()
