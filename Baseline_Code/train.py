@@ -95,13 +95,13 @@ def val():
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
     criterion = get_criterion()
     with torch.no_grad():
-        for batch_idx, (x, y) in enumerate(loader_train):
+        for batch_idx, (x, y) in enumerate(loader_val):
             if use_cuda:
                 x, y = x.cuda(), y.cuda()
             y_hat = net(x)
             loss = torch.mean(criterion(y_hat, y))
             # logging on console
-            print('\r' + f'⏩ epoch: {epoch} [{batch_idx+1}/{len(loader_train)}] [valid], '
+            print('\r' + f'⏩ epoch: {epoch} [{batch_idx+1}/{len(loader_val)}] [valid], '
                          f'best_acc_val: {best_acc_val * 100.: .3f}%, '
                          f'batch-acc: {acc_metric(y_hat, y) * 100.: .3f}%, '
                          f'batch-loss: {loss_metric(loss):.4f}', end='')
