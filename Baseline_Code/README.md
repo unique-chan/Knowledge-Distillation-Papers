@@ -16,7 +16,7 @@ tensorboard
 
 
 ## How to run
-- Example: `python train.py -dataroot='../dataroot' -saveroot='../saveroot' -dataset='cifar100' -epoch=5 -ngpu=1 -model='CIFAR_ResNet18'`
+- Example: `python train.py -dataroot='./dataroot' -saveroot='./saveroot' -dataset='cifar100' -epoch=5 -ngpu=1 -model='CIFAR_ResNet18'`
 - For details, please refer to `parse_args()` in `train.py`.
 
 ## Contribution
