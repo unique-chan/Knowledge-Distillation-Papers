@@ -5,6 +5,7 @@ import torch
 import torchmetrics
 from torch import optim
 from torch.utils import data
+from torch.utils.tensorboard import SummaryWriter
 
 
 import models
@@ -24,8 +25,8 @@ def parse_args():
     parser.add_argument('-sgpu', default=0, type=int, help='gpu index (start) (ex) -ngpu=2 -sgpu=0 -> [0, 1] gpus used')
     parser.add_argument('-dataset', default='cifar100', type=str,
                         help='name of dataset (ex) cifar10 | cifar100 | tinyimagenet | CUB200 | STANFORD120 | MIT67')
-    parser.add_argument('-dataroot', type=str, help='directory for dataset')
-    parser.add_argument('-saveroot', type=str, help='directory to store')
+    parser.add_argument('-dataroot', default='./dataroot', type=str, help='directory for dataset')
+    parser.add_argument('-saveroot', default='./saveroot', type=str, help='directory to store')
     return parser.parse_args()
 
 
@@ -36,7 +37,7 @@ def set_logging_defaults():
     os.makedirs(log_dir)
     logging.basicConfig(format='[%(asctime)s] [%(name)s] %(message)s',
                         level=logging.INFO,
-                        handlers=[logging.FileHandler('log.txt'),
+                        handlers=[logging.FileHandler(os.path.join(args.saveroot, 'log.txt')),
                                   logging.StreamHandler(os.sys.stdout)])
     logger = logging.getLogger(f'main-{log_dir}')
     logger.info(' '.join(os.sys.argv))
@@ -64,7 +65,7 @@ def get_criterion():
 
 
 def train():
-    global net, loader_train, use_cuda, optimizer, epoch
+    global net, loader_train, use_cuda, optimizer, epoch, tb_writer
     net.train()
     acc_metric = torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
@@ -78,18 +79,21 @@ def train():
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        # loss, acc
+        # logging on console
         print('\r' + f'⏩ epoch: {epoch} [{batch_idx+1}/{len(loader_train)}] [train], '
                      f'best_acc_val: {best_acc_val * 100.: .3f}%, '
-                     f'acc: {acc_metric(outputs, targets) * 100.: .3f}%, '
-                     f'loss: {loss_metric(loss):.4f}', end='')
-    total_acc = acc_metric.compute()
+                     f'batch-acc: {acc_metric(outputs, targets) * 100.: .3f}%, '
+                     f'batch-loss: {loss_metric(loss):.4f}', end='')
     total_loss = loss_metric.compute()
+    total_acc = acc_metric.compute()
+    # logging on tensorboard
+    tb_writer.add_scalar('train-loss', total_loss, epoch)
+    tb_writer.add_scalar('train-acc', total_acc, epoch)
     return total_loss, total_acc
 
 
 def val():
-    global best_acc_val, net, loader_val, use_cuda, epoch
+    global best_acc_val, net, loader_val, use_cuda, epoch, tb_writer
     net.eval()
     acc_metric = torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
     loss_metric = torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
@@ -100,13 +104,16 @@ def val():
                 inputs, targets = inputs.cuda(), targets.cuda()
             outputs = net(inputs)
             loss = torch.mean(criterion(outputs, targets))
-            # loss, acc
+            # logging on console
             print('\r' + f'⏩ epoch: {epoch} [{batch_idx+1}/{len(loader_train)}] [valid], '
                          f'best_acc_val: {best_acc_val * 100.: .3f}%, '
-                         f'acc: {acc_metric(outputs, targets) * 100.: .3f}%, '
-                         f'loss: {loss_metric(loss):.4f}', end='')
-        total_acc = acc_metric.compute()
+                         f'batch-acc: {acc_metric(outputs, targets) * 100.: .3f}%, '
+                         f'batch-loss: {loss_metric(loss):.4f}', end='')
         total_loss = loss_metric.compute()
+        total_acc = acc_metric.compute()
+        # logging on tensorboard
+        tb_writer.add_scalar('val-loss', total_loss, epoch)
+        tb_writer.add_scalar('val-acc', total_acc, epoch)
         # best model update
         if total_acc > best_acc_val:
             best_acc_val = total_acc
@@ -117,16 +124,17 @@ def val():
 def checkpoint(total_acc, epoch):
     global log_dir
     print(end='\r' + '⭕')
-    state = {'net': net.state_dict(),
-             'optimizer': optimizer.state_dict(),
-             'acc': total_acc,
-             'epoch': epoch,
-             'rng_state': torch.get_rng_state()
-            }
+    state = {
+        'net': net.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'acc': total_acc,
+        'epoch': epoch,
+        'rng_state': torch.get_rng_state()
+    }
     torch.save(state, os.path.join(log_dir, 'ckpt.pt'))
 
 
-#######################################################################################################################
+########################################################################################################################
 filterwarnings('ignore')
 
 args = parse_args()
@@ -139,6 +147,7 @@ epoch_start, epoch_end = 0, args.epoch
 # logger
 log_dir = os.path.join(args.saveroot, args.dataset, args.model, args.name)
 set_logging_defaults()
+tb_writer = SummaryWriter(log_dir)  # (ex) tensorboard --logdir=[saveroot]
 
 # data
 print(f'⏺ Preparing dataset: {args.dataset}')

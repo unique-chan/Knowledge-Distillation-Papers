@@ -11,6 +11,7 @@
 torch
 torchvision
 torchmetrics
+tensorboard
 ~~~
 
 
