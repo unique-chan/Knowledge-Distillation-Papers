@@ -6,7 +6,7 @@
 - Python3 / Pytorch code for multi-class image classification
 
 ## Prerequisites
-- See `../requirements.txt` for details.
+- See `requirements.txt` for details.
 ~~~ME
 torch
 torchvision
