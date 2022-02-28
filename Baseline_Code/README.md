@@ -8,10 +8,10 @@
 ## Prerequisites
 - See `requirements.txt` for details.
 ~~~ME
-torch
-torchvision
-torchmetrics
-tensorboard
+torch == 1.7.1
+torchvision == 0.8.2
+torchmetrics == 0.7.2
+tensorboard == 2.8.0
 ~~~
 
 
