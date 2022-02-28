@@ -85,7 +85,7 @@ def train():
     # logging on tensorboard
     tb_writer.add_scalar('train-loss', total_loss, epoch)
     tb_writer.add_scalar('train-acc', total_acc, epoch)
-    return total_loss, total_acc
+    # return total_loss, total_acc
 
 
 def val():
@@ -114,7 +114,7 @@ def val():
         if total_acc > best_acc_val:
             best_acc_val = total_acc
             checkpoint(total_acc, epoch)
-    return total_loss, total_acc
+    # return total_loss, total_acc
 
 
 def checkpoint(total_acc, epoch):
@@ -176,8 +176,8 @@ if args.resume:
 
 # train/val
 for epoch in range(epoch_start, epoch_end):
-    loss_train, acc_train = train()
-    loss_val, acc_val = val()
+    train()
+    val()
     adjust_lr()
 
 print('\n' + f'⏹ best_acc_val: {best_acc_val * 100:.3f}%')
