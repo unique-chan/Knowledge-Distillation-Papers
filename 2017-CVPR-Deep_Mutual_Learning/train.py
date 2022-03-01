@@ -33,8 +33,9 @@ def parse_args():
 
 def set_logging_defaults():
     if os.path.isdir(log_dir):
-        raise Exception(f'❌  {log_dir} already exists.')
-    os.makedirs(log_dir)
+        print(f'❌ Warning: {log_dir} already exists.')
+        # raise Exception(f'❌  {log_dir} already exists.')
+    os.makedirs(log_dir, exist_ok=True)
     logging.basicConfig(format='[%(asctime)s] [%(name)s] %(message)s',
                         level=logging.INFO,
                         handlers=[logging.FileHandler(os.path.join(args.saveroot, 'log.txt')),
@@ -104,7 +105,7 @@ def train():
             kl_loss_metrics[i](kl_loss / (args.cohort_size - 1))
     # compute final losses / accs per each peer net
     total_losses, total_accs = [], []
-    for i in range(len(nets)):
+    for i in range(args.cohort_size):
         total_loss = loss_metrics[i].compute()
         kl_loss_only = kl_loss_metrics[i].compute()
         total_acc = acc_metrics[i].compute()
@@ -142,7 +143,7 @@ def val():
                              f'batch-loss: {loss_metrics[i](losses[i]):.4f}', end='')
         # compute final losses / accs per each peer net
         total_losses, total_accs = [], []
-        for i in range(len(nets)):
+        for i in range(args.cohort_size):
             total_loss = loss_metrics[i].compute()
             total_acc = acc_metrics[i].compute()
             # logging on tensorboard
@@ -151,11 +152,11 @@ def val():
             # best model update
             if total_acc > best_acc_vals[i]:
                 best_acc_vals[i] = total_acc
-                checkpoint(total_acc, epoch, i)
+                record_checkpoint(total_acc, epoch, i)
         return total_losses, total_accs
 
 
-def checkpoint(total_acc, epoch, i):
+def record_checkpoint(total_acc, epoch, i, msg=''):
     print(end='\r' + '⭕')
     state = {
         'net': nets[i].state_dict(),
@@ -164,7 +165,7 @@ def checkpoint(total_acc, epoch, i):
         'epoch': epoch,
         'rng_state': torch.get_rng_state()
     }
-    torch.save(state, os.path.join(log_dir, f'model_{i}_ckpt.pt'))
+    torch.save(state, os.path.join(log_dir, f'model_{i}_ckpt{msg}.pt'))
 
 
 ########################################################################################################################
@@ -197,13 +198,17 @@ nets = [models.load_model(args.model, num_classes) for _ in range(args.cohort_si
 
 if use_cuda:
     torch.cuda.set_device(args.sgpu)
-    for i in range(len(nets)):
+    for i in range(args.cohort_size):
         nets[i] = nets[i].cuda()
     if args.ngpu > 1:
-        for i in range(len(nets)):
+        for i in range(args.cohort_size):
             nets[i] = torch.nn.DataParallel(nets[i], device_ids=list(range(args.sgpu, args.sgpu + args.ngpu)))
 optimizers = get_optimizers()
 # lr_scheduler = pass
+
+# save init states (for replication)
+for i in range(args.cohort_size):
+    checkpoint(total_acc=0, epoch=0, i=i, msg='_init')
 
 # train/val
 for epoch in range(epoch_start, epoch_end):
@@ -211,10 +216,12 @@ for epoch in range(epoch_start, epoch_end):
     val()
     adjust_lr()
 
+# logging on console
 print()
 for i in range(args.cohort_size):
     print(f'⏹ model_{i}_best_acc_val: {best_acc_vals[i] * 100:.3f}%')
 
+# logging on logs.txt
 for i in range(args.cohort_size):
     logger = logging.getLogger(f'model_{i}_best_acc_val-{log_dir}')
     msg = f'model_{i}: {best_acc_vals[i] * 100:.3f}%'
