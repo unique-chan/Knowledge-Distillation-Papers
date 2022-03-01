@@ -217,10 +217,8 @@ for i in range(args.cohort_size):
 
 for i in range(args.cohort_size):
     logger = logging.getLogger(f'model_{i}_best_acc_val-{log_dir}')
-    sentence = f'model_{i}: {best_acc_vals[i] * 100:.3f}%'
-    if i < args.cohort_size - 1:
-        pass
-
-    logger.info(f'model_{i}: {best_acc_vals[i] * 100:.3f}%')
-logger.info(f'\n')
+    msg = f'model_{i}: {best_acc_vals[i] * 100:.3f}%'
+    if i == args.cohort_size - 1:
+        msg += '\n'
+    logger.info(msg)
 #######################################################################################################################
