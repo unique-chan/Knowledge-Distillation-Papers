@@ -32,8 +32,9 @@ def parse_args():
 
 def set_logging_defaults():
     if os.path.isdir(log_dir):
-        raise Exception(f'❌  {log_dir} already exists.')
-    os.makedirs(log_dir)
+        print(f'❌ Warning: {log_dir} already exists.')
+        # raise Exception(f'❌  {log_dir} already exists.')
+    os.makedirs(log_dir, exist_ok=True)
     logging.basicConfig(format='[%(asctime)s] [%(name)s] %(message)s',
                         level=logging.INFO,
                         handlers=[logging.FileHandler(os.path.join(args.saveroot, 'log.txt')),
@@ -113,11 +114,11 @@ def val():
         # best model update
         if total_acc > best_acc_val:
             best_acc_val = total_acc
-            checkpoint(total_acc, epoch)
+            record_checkpoint(total_acc, epoch)
     # return total_loss, total_acc
 
 
-def checkpoint(total_acc, epoch):
+def record_checkpoint(total_acc, epoch):
     print(end='\r' + '⭕')
     state = {
         'net': net.state_dict(),
