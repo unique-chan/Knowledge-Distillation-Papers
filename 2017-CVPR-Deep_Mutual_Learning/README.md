@@ -26,3 +26,4 @@ tensorboard == 2.8.0
 ## Reference
 1. https://github.com/weiaicunzai/pytorch-cifar100
 2. https://github.com/alinlab/cs-kd
+3. https://github.com/chxy95/Deep-Mutual-Learning
