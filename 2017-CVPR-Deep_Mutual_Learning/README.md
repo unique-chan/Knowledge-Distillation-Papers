@@ -29,6 +29,8 @@ tensorboard == 2.8.0
 |ResNet-34 (A) |   76.00%  | **76.13%** |
 |ResNet-34 (B) |   75.37%  | **76.72%** |
 
+## Tip
+Of course, you can use different peer models for deep mutual learning (e.g. ResNet-128 & VGG-19). However, you will need to modify this code, and I believe it would not be too finicky.
 
 ## Contribution
 🐛 If you find any bugs or have opinions for further improvements, feel free to contact me (yechankim@gm.gist.ac.kr). All contributions are welcome.
