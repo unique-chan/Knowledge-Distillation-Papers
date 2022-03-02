@@ -16,6 +16,7 @@ from dataset import load_dataset
 def parse_args():
     parser = argparse.ArgumentParser(description='Baseline Code (github.com/unique-chan)')
     parser.add_argument('-lr', default=0.1, type=float, help='learning rate')
+    parser.add_argument('-resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('-model', default='', type=str, help='model name')
     parser.add_argument('-name', default='0', type=str, help='name of experiment')
     parser.add_argument('-batch_size', default=128, type=int, help='batch size')
@@ -206,9 +207,20 @@ if use_cuda:
 optimizers = get_optimizers()
 # lr_scheduler = pass
 
+# resume
+if args.resume:
+    print(f'⏸ Resuming from checkpoint.')
+    for i in range(args.cohort_size):
+        checkpoint = torch.load(os.path.join(log_dir, f'model_{i}_ckpt.pt'))
+        nets[i].load_state_dict(checkpoint['net'])
+        optimizers[i].load_state_dict(checkpoint['optimizer'])
+        best_acc_vals[i] = checkpoint['acc']
+        epoch_start = checkpoint['epoch'] + 1
+        torch.set_rng_state(checkpoint['rng_state'])
 # save init states (for replication)
-for i in range(args.cohort_size):
-    checkpoint(total_acc=0, epoch=0, i=i, msg='_init')
+else:
+    for i in range(args.cohort_size):
+        record_checkpoint(total_acc=0, epoch=0, i=i, msg='_init')
 
 # train/val
 for epoch in range(epoch_start, epoch_end):
