@@ -19,6 +19,17 @@ tensorboard == 2.8.0
 - Example: `python train.py -dataroot='./dataroot' -saveroot='./saveroot' -dataset='cifar100' -epoch=5 -ngpu=1 -cohort_size=2 -model='CIFAR_ResNet18'`
 - For details, please refer to `parse_args()` in `train.py`.
 
+## Experimental Results
+- Here, `IND` and `DML` stand for 'individual training' and 'deep mutual learning', respectively.
+- Experiments are performed on `CIFAR-100` with 200 epochs. Other experimental setups are the same as in the code.
+- Note that, for fair comparison, same model weights and PyTorch random states are used for both (A) and (B).
+
+| Network | `IND` - Top1 Acc (%) | `DML` - Top1 Acc(%)|
+|---------|:-----------:|:----------:|
+|ResNet34 (A) |   76.000%  | **76.13%** |
+|ResNet32 (B) |   75.370%  | **76.72%** |
+
+
 ## Contribution
 🐛 If you find any bugs or have opinions for further improvements, feel free to contact me (yechankim@gm.gist.ac.kr). All contributions are welcome.
 
