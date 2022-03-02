@@ -24,7 +24,7 @@ tensorboard == 2.8.0
 - Experiments are performed on `cifar100` with 200 epochs. Other experimental setups are the same as in the code.
 - Note that, for fair comparison, same model weights and PyTorch random states are used for both (A) and (B).
 
-| Network | `IND` - Top1 Acc (%) | `DML` - Top1 Acc(%)|
+| Network | `IND` - Top1 Best Validation Acc (%) | `DML` - Top1 Best Validation Acc(%)|
 |---------|:-----------:|:----------:|
 |ResNet-34 (A) |   76.00%  | **76.13%** |
 |ResNet-34 (B) |   75.37%  | **76.72%** |
