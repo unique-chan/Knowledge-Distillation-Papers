@@ -21,7 +21,7 @@ tensorboard == 2.8.0
 
 ## Experimental Results
 - Here, `IND` and `DML` stand for 'individual training' and 'deep mutual learning', respectively.
-- Experiments are performed on `CIFAR-100` with 200 epochs. Other experimental setups are the same as in the code.
+- Experiments are performed on `cifar100` with 200 epochs. Other experimental setups are the same as in the code.
 - Note that, for fair comparison, same model weights and PyTorch random states are used for both (A) and (B).
 
 | Network | `IND` - Top1 Acc (%) | `DML` - Top1 Acc(%)|
