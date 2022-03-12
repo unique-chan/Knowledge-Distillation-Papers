@@ -151,13 +151,6 @@ def load_dataset(name, root, sample='default', **kwargs):
                 transforms.ToTensor(),
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
             ])
-
-            train_val_dataset_dir = os.path.join(root, "train")
-            test_dataset_dir = os.path.join(root, "val")
-
-            train_set = DatasetWrapper(datasets.ImageFolder(root=train_val_dataset_dir, transform=transform_train))
-            val_set = DatasetWrapper(datasets.ImageFolder(root=test_dataset_dir, transform=transform_test))
-
         elif name == 'imagenet':
             transform_train = transforms.Compose([
                 transforms.RandomResizedCrop(224),
@@ -171,12 +164,6 @@ def load_dataset(name, root, sample='default', **kwargs):
                 transforms.ToTensor(),
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
             ])
-            train_val_dataset_dir = os.path.join(root, "train")
-            test_dataset_dir = os.path.join(root, "val")
-
-            train_set = DatasetWrapper(datasets.ImageFolder(root=train_val_dataset_dir, transform=transform_train))
-            val_set = DatasetWrapper(datasets.ImageFolder(root=test_dataset_dir, transform=transform_test))
-
         else:
             transform_train = transforms.Compose([
                 transforms.RandomResizedCrop(224),
@@ -191,11 +178,11 @@ def load_dataset(name, root, sample='default', **kwargs):
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
             ])
 
-            train_val_dataset_dir = os.path.join(root, name, "train")
-            test_dataset_dir = os.path.join(root, name, "test")
+        train_val_dataset_dir = os.path.join(root, name, "train")
+        test_dataset_dir = os.path.join(root, name, "test")
 
-            train_set = DatasetWrapper(datasets.ImageFolder(root=train_val_dataset_dir, transform=transform_train))
-            val_set = DatasetWrapper(datasets.ImageFolder(root=test_dataset_dir, transform=transform_test))
+        train_set = DatasetWrapper(datasets.ImageFolder(root=train_val_dataset_dir, transform=transform_train))
+        val_set = DatasetWrapper(datasets.ImageFolder(root=test_dataset_dir, transform=transform_test))
 
     elif name.startswith('cifar'):
         transform_train = transforms.Compose([
@@ -217,6 +204,7 @@ def load_dataset(name, root, sample='default', **kwargs):
 
         train_set = DatasetWrapper(CIFAR(root, train=True,  download=True, transform=transform_train))
         val_set = DatasetWrapper(CIFAR(root, train=False, download=True, transform=transform_test))
+
     else:
         raise Exception('Unknown dataset: {}'.format(name))
 
@@ -224,9 +212,11 @@ def load_dataset(name, root, sample='default', **kwargs):
     if sample == 'default':
         get_train_sampler = lambda d: BatchSampler(RandomSampler(d), kwargs['batch_size'], False)
         get_test_sampler = lambda d: BatchSampler(SequentialSampler(d), kwargs['batch_size'], False)
+
     elif sample == 'pair':
         get_train_sampler = lambda d: PairBatchSampler(d, kwargs['batch_size'])
         get_test_sampler = lambda d: BatchSampler(SequentialSampler(d), kwargs['batch_size'], False)
+
     else:
         raise Exception('Unknown sampling: {}'.format(sample))
 
