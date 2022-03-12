@@ -16,7 +16,7 @@ tensorboard == 2.8.0
 
 
 ## How to run
-- Example: `python train.py -dataroot='./dataroot' -saveroot='./saveroot' -dataset='cifar100' -epoch=5 -ngpu=1 -cohort_size=2 -model='CIFAR_ResNet18'`
+- Example: `python train.py -dataroot='./dataroot' -saveroot='./saveroot' -dataset='cifar100' -epoch=200 --temp=4 --lamda=1 -ngpu=1 -model='CIFAR_ResNet34' -name=0`
 - For details, please refer to `parse_args()` in `train.py`.
 
 
