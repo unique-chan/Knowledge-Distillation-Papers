@@ -129,7 +129,7 @@ def record_checkpoint(total_acc, epoch, msg=''):
         'epoch': epoch,
         'rng_state': torch.get_rng_state()
     }
-    torch.save(state, os.path.join(log_dir, f'ckpt{msg}-epoch{epoch}.pt'))
+    torch.save(state, os.path.join(log_dir, f'ckpt{msg}.pt'))
 
 
 ########################################################################################################################
