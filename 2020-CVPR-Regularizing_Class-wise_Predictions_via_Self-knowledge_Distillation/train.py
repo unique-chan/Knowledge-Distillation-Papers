@@ -86,7 +86,7 @@ def train():
             x, y = x.cuda(), y.cuda()
         batch_size = x.size(0)
         # processing input batch [◼ | ⬜]
-        y_front_half = y[:batch_size // 2]
+        y_front_half = y[:batch_size//2]
         y_hat_front_half = net(x[:batch_size//2])
         train_loss = torch.mean(cross_entropy(y_hat_front_half, y_front_half))
         # processing input batch [⬜ | ◼]
