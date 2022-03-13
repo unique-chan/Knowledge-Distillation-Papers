@@ -4,7 +4,6 @@ import os, argparse, logging
 import torch
 import torchmetrics
 from torch import optim, nn
-from torch.utils import data
 from torch.utils.tensorboard import SummaryWriter
 
 
