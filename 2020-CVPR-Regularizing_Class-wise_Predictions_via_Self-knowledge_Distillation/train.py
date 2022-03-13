@@ -18,6 +18,8 @@ def parse_args():
                                                  '(github.com/unique-chan)')
     parser.add_argument('-lr', default=0.1, type=float, help='learning rate')
     parser.add_argument('-resume', '-r', action='store_true', help='resume from checkpoint')
+    parser.add_argument('-ckpt', type=str, default='ckpt.pt',
+                        help='checkpoint name (e.g. ckpt-epoch10.pt) (default: ckpt.pt)')
     parser.add_argument('-model', default='', type=str, help='model name')
     parser.add_argument('-name', default='0', type=str, help='name of experiment')
     parser.add_argument('-batch_size', default=128, type=int, help='batch size')
@@ -140,7 +142,7 @@ def val():
     # return total_loss, total_acc
 
 
-def record_checkpoint(total_acc, epoch):
+def record_checkpoint(total_acc, epoch, msg=''):
     print(end='\r' + '⭕')
     state = {
         'net': net.state_dict(),
@@ -149,7 +151,7 @@ def record_checkpoint(total_acc, epoch):
         'epoch': epoch,
         'rng_state': torch.get_rng_state()
     }
-    torch.save(state, os.path.join(log_dir, 'ckpt.pt'))
+    torch.save(state, os.path.join(log_dir, f'ckpt{msg}-epoch{epoch}.pt'))
 
 
 ########################################################################################################################
@@ -190,12 +192,15 @@ optimizer = get_optimizer()
 # resume
 if args.resume:
     print(f'⏸ Resuming from checkpoint.')
-    checkpoint = torch.load(os.path.join(log_dir, 'ckpt.pt'))
+    checkpoint = torch.load(os.path.join(log_dir, args.ckpt))
     net.load_state_dict(checkpoint['net'])
     optimizer.load_state_dict(checkpoint['optimizer'])
     best_acc_val = checkpoint['acc']
     epoch_start = checkpoint['epoch'] + 1
     torch.set_rng_state(checkpoint['rng_state'])
+# save init states (for replication)
+else:
+    record_checkpoint(total_acc=0, epoch=-1, msg='_init')
 
 # train/val
 for epoch in range(epoch_start, epoch_end):
