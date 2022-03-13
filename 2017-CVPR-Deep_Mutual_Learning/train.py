@@ -63,7 +63,6 @@ def adjust_lr():
 
 
 def train():
-    cross_entropy = torch.nn.CrossEntropyLoss()
     kl_divergence = torch.nn.KLDivLoss(reduction='batchmean')
     acc_metrics = [torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
                    for _ in range(args.cohort_size)]
@@ -118,7 +117,6 @@ def train():
 
 
 def val():
-    cross_entropy = torch.nn.CrossEntropyLoss()
     acc_metrics = [torchmetrics.Accuracy(top_k=1).cuda() if use_cuda else torchmetrics.Accuracy(top_k=1)
                    for _ in range(args.cohort_size)]
     loss_metrics = [torchmetrics.MeanMetric().cuda() if use_cuda else torchmetrics.MeanMetric()
@@ -192,6 +190,9 @@ loader_train = data.DataLoader(dataset_train,
 loader_val = data.DataLoader(dataset_val,
                              batch_size=args.batch_size, shuffle=False)
 num_classes = len(dataset_train.classes)
+
+# criterion
+cross_entropy = torch.nn.CrossEntropyLoss()
 
 # model
 print(f'⏺ Building {args.cohort_size} peer models. Model name: {args.model}')
